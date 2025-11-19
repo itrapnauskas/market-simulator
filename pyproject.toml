@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=67", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "market-lab"
+version = "0.1.0"
+description = "Educational simulator for studying market manipulation"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  {name = "Market Manipulation Lab"}
+]
+dependencies = []
+
+[project.optional-dependencies]
+viz = ["matplotlib>=3.8"]
+
+[tool.setuptools]
+packages = {find = {where = ["src"]}}
+
+[tool.setuptools.packages.find]
+where = ["src"]
