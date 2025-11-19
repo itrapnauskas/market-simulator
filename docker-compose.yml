@@ -1,0 +1,174 @@
+version: '3.8'
+
+services:
+  # Production runtime
+  market-lab:
+    build:
+      context: .
+      target: runtime
+      dockerfile: Dockerfile
+    image: market-lab:latest
+    container_name: market-lab-app
+    volumes:
+      - ./results:/app/results
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MARKET_LAB_ENV=production
+    restart: unless-stopped
+    networks:
+      - market-lab-network
+
+  # Development environment
+  market-lab-dev:
+    build:
+      context: .
+      target: development
+      dockerfile: Dockerfile
+    image: market-lab:dev
+    container_name: market-lab-dev
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./results:/app/results
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MARKET_LAB_ENV=development
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    networks:
+      - market-lab-network
+
+  # Jupyter Lab for interactive analysis
+  jupyter:
+    build:
+      context: .
+      target: jupyter
+      dockerfile: Dockerfile
+    image: market-lab:jupyter
+    container_name: market-lab-jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/app/notebooks
+      - ./src:/app/src
+      - ./data:/app/data
+      - ./results:/app/results
+    environment:
+      - PYTHONUNBUFFERED=1
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=market-lab-token
+    command: >
+      jupyter lab
+      --ip=0.0.0.0
+      --port=8888
+      --no-browser
+      --allow-root
+      --NotebookApp.token='market-lab-token'
+    restart: unless-stopped
+    networks:
+      - market-lab-network
+
+  # Dashboard (Streamlit)
+  dashboard:
+    build:
+      context: .
+      target: dashboard
+      dockerfile: Dockerfile
+    image: market-lab:dashboard
+    container_name: market-lab-dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./dashboard:/app/dashboard
+      - ./data:/app/data
+      - ./results:/app/results
+    environment:
+      - PYTHONUNBUFFERED=1
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    restart: unless-stopped
+    networks:
+      - market-lab-network
+
+  # PostgreSQL for storing simulation results (optional)
+  postgres:
+    image: postgres:16-alpine
+    container_name: market-lab-db
+    environment:
+      - POSTGRES_USER=marketlab
+      - POSTGRES_PASSWORD=marketlab
+      - POSTGRES_DB=marketlab
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - market-lab-network
+    profiles:
+      - with-db
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: market-lab-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - market-lab-network
+    profiles:
+      - with-cache
+
+networks:
+  market-lab-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+
+# ============================================================================
+# Usage Examples:
+# ============================================================================
+#
+# Start all core services:
+#   docker-compose up -d
+#
+# Start with database:
+#   docker-compose --profile with-db up -d
+#
+# Start everything:
+#   docker-compose --profile with-db --profile with-cache up -d
+#
+# Start only Jupyter:
+#   docker-compose up jupyter
+#
+# Start only Dashboard:
+#   docker-compose up dashboard
+#
+# Development shell:
+#   docker-compose run --rm market-lab-dev
+#
+# Run tests:
+#   docker-compose run --rm market-lab-dev pytest
+#
+# Run a specific experiment:
+#   docker-compose run --rm market-lab python -m market_lab.experiments.random_walk
+#
+# View logs:
+#   docker-compose logs -f
+#
+# Stop all services:
+#   docker-compose down
+#
+# Clean up everything (including volumes):
+#   docker-compose down -v
+# ============================================================================

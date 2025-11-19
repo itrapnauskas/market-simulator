@@ -35,7 +35,24 @@ class MarketState:
 
 
 def find_equilibrium_price(order_curves: OrderCurves) -> tuple[float, float]:
-    """Return the clearing price and traded volume using auction pricing."""
+    """
+    Calcula o preço de equilíbrio e o volume negociado usando precificação por leilão.
+
+    Encontra o preço que maximiza o volume executável, onde a demanda e oferta
+    se encontram. Se múltiplos preços resultam no mesmo volume máximo, retorna
+    a média desses preços.
+
+    Args:
+        order_curves: Curvas agregadas de ordens de compra e venda
+
+    Returns:
+        Uma tupla contendo (preço_de_equilíbrio, volume_negociado)
+
+    Example:
+        >>> curves = build_order_curves(buy_orders, sell_orders, price_tick=1.0)
+        >>> price, volume = find_equilibrium_price(curves)
+        >>> print(f"Preço: {price}, Volume: {volume}")
+    """
 
     satisfaction = order_curves.satisfaction()
     max_volume = max(satisfaction) if satisfaction else 0.0

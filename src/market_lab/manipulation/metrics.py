@@ -6,7 +6,27 @@ from typing import Iterable, List
 
 
 def rolling_zscore(values: Iterable[float], window: int = 10) -> list[float]:
-    """Return z-scores computed over a sliding window."""
+    """
+    Calcula z-scores usando uma janela deslizante.
+
+    Para cada ponto, calcula quantos desvios padrão ele está da média dos
+    últimos 'window' valores. Útil para detectar outliers e anomalias em
+    séries temporais.
+
+    Args:
+        values: Sequência de valores numéricos para análise
+        window: Tamanho da janela deslizante (padrão: 10)
+
+    Returns:
+        Lista de z-scores, um por valor de entrada. Para índices menores que
+        window, usa todos os valores disponíveis até aquele ponto.
+
+    Example:
+        >>> prices = [100, 101, 102, 150, 103, 104]
+        >>> zscores = rolling_zscore(prices, window=4)
+        >>> zscores[3]  # O valor 150 terá z-score alto
+        2.5
+    """
 
     series = list(values)
     if not series:
@@ -29,7 +49,32 @@ def rolling_zscore(values: Iterable[float], window: int = 10) -> list[float]:
 
 
 def band_distance(series: Iterable[float], *, lower: Iterable[float], upper: Iterable[float]) -> list[float]:
-    """Measure how far values are from a reference band."""
+    """
+    Mede o quão distante os valores estão de uma banda de referência.
+
+    Calcula a distância de cada valor para fora da banda [lower, upper].
+    Valores dentro da banda retornam distância zero.
+
+    Args:
+        series: Sequência de valores a serem comparados com a banda
+        lower: Limite inferior da banda de referência
+        upper: Limite superior da banda de referência
+
+    Returns:
+        Lista de distâncias, uma por valor. Zero se o valor estiver dentro da
+        banda, caso contrário a distância até o limite mais próximo.
+
+    Raises:
+        ValueError: Se as sequências não tiverem o mesmo comprimento
+
+    Example:
+        >>> values = [5, 10, 15, 20]
+        >>> lower = [8, 8, 8, 8]
+        >>> upper = [12, 12, 12, 12]
+        >>> distances = band_distance(values, lower=lower, upper=upper)
+        >>> distances
+        [3.0, 0.0, 3.0, 8.0]
+    """
 
     values = list(series)
     low = list(lower)

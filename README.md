@@ -1,5 +1,13 @@
 # Market Manipulation Lab
 
+[![CI](https://github.com/itrapnauskas/market-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/itrapnauskas/market-simulator/actions/workflows/ci.yml)
+[![Documentation](https://github.com/itrapnauskas/market-simulator/actions/workflows/docs.yml/badge.svg)](https://github.com/itrapnauskas/market-simulator/actions/workflows/docs.yml)
+[![codecov](https://codecov.io/gh/itrapnauskas/market-simulator/branch/main/graph/badge.svg)](https://codecov.io/gh/itrapnauskas/market-simulator)
+[![Python Version](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://hub.docker.com/)
+
 Simulador educacional e experimental de **microestrutura de mercado** e **manipulação baseada em ordens**.
 
 Este repositório implementa, em Python, um laboratório para explorar:

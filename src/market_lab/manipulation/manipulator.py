@@ -20,6 +20,29 @@ class Manipulator(WealthLimitedTrader):
     dump_days: int = 15
 
     def current_phase(self, day: int) -> str:
+        """
+        Determina a fase atual da estratégia pump-and-dump.
+
+        A estratégia possui três fases sequenciais:
+        - accumulate: acumula posição comprando abaixo do preço
+        - pump: infla artificialmente o preço com ordens coordenadas
+        - dump: vende toda a posição rapidamente
+
+        Args:
+            day: Número do dia da simulação
+
+        Returns:
+            String indicando a fase: "accumulate", "pump" ou "dump"
+
+        Example:
+            >>> manip = Manipulator("m1", rng, accumulation_days=30, pump_days=10)
+            >>> manip.current_phase(15)
+            'accumulate'
+            >>> manip.current_phase(35)
+            'pump'
+            >>> manip.current_phase(45)
+            'dump'
+        """
         if day < self.accumulation_days:
             return "accumulate"
         if day < self.accumulation_days + self.pump_days:
@@ -35,6 +58,34 @@ class Manipulator(WealthLimitedTrader):
         config: MarketConfig,
         rng: Random,
     ) -> List[Order]:
+        """
+        Gera um conjunto de ordens coordenadas baseadas na fase de manipulação.
+
+        Implementa a estratégia pump-and-dump:
+        - Fase accumulate: compra gradual abaixo do preço de mercado (0.98x)
+        - Fase pump: ordens simultâneas de compra/venda para criar movimento
+          artificial de preço (compra a 1.02x, vende a 1.021x)
+        - Fase dump: vende rapidamente toda a posição (0.99x)
+
+        Args:
+            day: Número do dia da simulação
+            last_price: Último preço de fechamento do mercado
+            sentiment_value: Valor de sentimento atual (ignorado na manipulação)
+            config: Configuração do mercado
+            rng: Gerador de números aleatórios (não usado atualmente)
+
+        Returns:
+            Lista de ordens a serem submetidas, pode estar vazia se não houver
+            capital/holdings suficientes
+
+        Example:
+            >>> manip = Manipulator("m1", rng, wealth=100000, holdings=0)
+            >>> orders = manip.maybe_generate_order_batch(day=5, last_price=100, ...)
+            >>> orders[0].side
+            'buy'
+            >>> orders[0].price < 100
+            True
+        """
         phase = self.current_phase(day)
         orders: list[Order] = []
         if phase == "accumulate":

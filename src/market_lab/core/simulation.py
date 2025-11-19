@@ -23,6 +23,30 @@ class SimulationRunner:
     rng: Random | None = None
 
     def run(self, n_days: int) -> list[MarketState]:
+        """
+        Executa a simulação de mercado por um número especificado de dias.
+
+        Coordena o ciclo completo de simulação: coleta ordens dos traders,
+        agrega em curvas de oferta/demanda, calcula preço de equilíbrio,
+        executa ordens e atualiza estados dos traders.
+
+        Args:
+            n_days: Número de dias de negociação a simular
+
+        Returns:
+            Lista de MarketState contendo histórico completo da simulação,
+            um estado por dia com preço, volume e curvas de ordens
+
+        Example:
+            >>> config = MarketConfig(n_traders=100, initial_price=100, ...)
+            >>> traders = build_traders(config, Random(42))
+            >>> runner = SimulationRunner(config, traders)
+            >>> states = runner.run(n_days=30)
+            >>> len(states)
+            30
+            >>> states[0].price
+            100.0
+        """
         rng = self.rng or Random(self.config.seed)
         sentiment = self.sentiment or NoSentiment()
 

@@ -10,7 +10,27 @@ from .metrics import rolling_zscore
 
 
 def compute_price_volume_anomaly(states: Sequence[MarketState], window: int = 20) -> list[float]:
-    """Return a composite anomaly score using price and volume z-scores."""
+    """
+    Calcula pontuação de anomalia combinando z-scores de preço e volume.
+
+    Detecta comportamento anormal no mercado analisando desvios estatísticos
+    tanto no preço quanto no volume negociado. Usa rolling z-scores para
+    capturar anomalias relativas ao histórico recente.
+
+    Args:
+        states: Sequência de estados do mercado para análise
+        window: Tamanho da janela deslizante para cálculo dos z-scores (padrão: 20)
+
+    Returns:
+        Lista de scores de anomalia, um por dia, onde valores maiores indicam
+        comportamento mais anormal. Score = |z_price| + |z_volume|
+
+    Example:
+        >>> states = runner.run(n_days=100)
+        >>> anomaly_scores = compute_price_volume_anomaly(states, window=20)
+        >>> max_anomaly_day = anomaly_scores.index(max(anomaly_scores))
+        >>> print(f"Maior anomalia no dia {max_anomaly_day}")
+    """
 
     prices = [state.price for state in states]
     volumes = [state.volume for state in states]
@@ -20,7 +40,25 @@ def compute_price_volume_anomaly(states: Sequence[MarketState], window: int = 20
 
 
 def curve_imbalance_score(order_curves: OrderCurves | None) -> float:
-    """Measure the imbalance between demand and supply curves for a single day."""
+    """
+    Mede o desequilíbrio entre curvas de demanda e oferta para um único dia.
+
+    Calcula uma métrica de assimetria entre buy_curve e sell_curve. Desequilíbrios
+    grandes podem indicar pressão de compra/venda artificial ou manipulação.
+
+    Args:
+        order_curves: Curvas de ordens para um dia específico, ou None
+
+    Returns:
+        Score de desequilíbrio normalizado. Zero se order_curves for None ou vazio.
+        Valores maiores indicam maior desequilíbrio entre oferta e demanda.
+
+    Example:
+        >>> state = states[42]
+        >>> imbalance = curve_imbalance_score(state.order_curves)
+        >>> if imbalance > 2.0:
+        ...     print("Possível manipulação detectada")
+    """
 
     if order_curves is None:
         return 0.0
@@ -34,7 +72,23 @@ def curve_imbalance_score(order_curves: OrderCurves | None) -> float:
 
 
 def attach_anomaly_scores(states: Sequence[MarketState], window: int = 20) -> None:
-    """Mutate ``states`` so that ``manipulation_score`` holds an anomaly score."""
+    """
+    Anexa scores de anomalia aos estados do mercado (operação in-place).
+
+    Calcula scores de anomalia para todos os estados e atribui cada score ao
+    campo manipulation_score do respectivo MarketState. Modifica a lista
+    de estados diretamente.
+
+    Args:
+        states: Sequência de estados do mercado a serem anotados
+        window: Tamanho da janela para cálculo de z-scores (padrão: 20)
+
+    Example:
+        >>> states = runner.run(n_days=100)
+        >>> attach_anomaly_scores(states, window=20)
+        >>> high_risk_days = [s.day for s in states if s.manipulation_score > 3.0]
+        >>> print(f"Dias suspeitos: {high_risk_days}")
+    """
 
     scores = compute_price_volume_anomaly(states, window=window)
     for state, score in zip(states, scores, strict=False):

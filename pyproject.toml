@@ -15,15 +15,21 @@ dependencies = []
 
 [project.optional-dependencies]
 viz = ["matplotlib>=3.8"]
+ml = [
+    "scikit-learn>=1.0",
+    "numpy>=1.24",
+]
 dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
     "ruff>=0.1.0",
     "mypy>=1.7",
 ]
-
-[tool.setuptools]
-packages = {find = {where = ["src"]}}
+all = [
+    "matplotlib>=3.8",
+    "scikit-learn>=1.0",
+    "numpy>=1.24",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
