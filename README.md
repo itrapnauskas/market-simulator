@@ -27,6 +27,33 @@ O foco não é prever mercado real, e sim **entender mecanismos**.
 
 ---
 
+## 🚀 QUICK START
+
+### Primeira Vez Aqui?
+**👉 Comece em:** [`START_HERE.md`](START_HERE.md) - Guia de 5 minutos para começar!
+
+### Quer Aprender?
+**👉 Siga:** [`LEARNING_PATH.md`](LEARNING_PATH.md) - Caminho estruturado (6-8h totais)
+
+### Quer Desenvolver?
+**👉 Leia:** [`DEVELOPMENT_GUIDE.md`](DEVELOPMENT_GUIDE.md) - Guia completo para devs
+
+### Instalação Rápida
+```bash
+# Instalar com todas as features
+pip install -e ".[dev,viz,ml]"
+
+# Rodar testes
+pytest tests/
+
+# Explorar interativamente
+jupyter lab notebooks/          # Notebooks educacionais
+streamlit run dashboard/app.py  # Dashboard web
+python run_agents.py --demo     # Sistema de agentes IA
+```
+
+---
+
 ## Objetivos do projeto
 
 1. **Criar um simulador de mercado simples, mas expressivo**, baseado em:
